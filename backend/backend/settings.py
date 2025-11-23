@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+import dj_database_url
 # Load .env variables
 load_dotenv()
 
@@ -12,8 +13,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-12345")  # fallback for dev
-DEBUG = True
-ALLOWED_HOSTS = ["*"]  # allow all hosts in development
+DEBUG = False
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".railway.app"
+]
+CORS_ALLOWED_ORIGINS = [
+    "https://chemequip.vercel.app/"
+]
+DATABASES = {
+    'default': dj_database_url.config(default=os.getenv("DATABASE_URL"))
+}
 
 # APPLICATIONS
 INSTALLED_APPS = [
@@ -43,11 +54,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 # ROOT URLS
 ROOT_URLCONF = 'backend.urls'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+INSTALLED_APPS += ["corsheaders"]
 # TEMPLATES
 TEMPLATES = [
     {
@@ -92,7 +107,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 # STATIC FILES
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"            # production
-STATICFILES_DIRS = [BASE_DIR / "static"]          # development
+STATICFILES_DIRS = [BASE_DIR / "static"]  
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')        # development
 
 # MEDIA FILES
 MEDIA_URL = '/media/'
@@ -115,8 +131,5 @@ MIDDLEWARE = [
     *MIDDLEWARE,
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "https://your-frontend.vercel.app"
-]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
